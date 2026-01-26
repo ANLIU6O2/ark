@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尋回榮耀：重建約櫃之旅｜鶯歌篇</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --holy-gold: #D4AF37;
+            --clay-red: #8B4513;
+            --deep-dark: #1A1A1A;
+            --soft-white: #F5F5F7;
+            --sand-color: #C2B280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--deep-dark);
+            color: var(--soft-white);
+            font-family: 'Noto Sans TC', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Noto Serif TC', serif;
+            color: var(--holy-gold);
+        }
+
+        /* 背景裝飾：營造煙雲感 */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, rgba(26, 26, 26, 1) 100%);
+            z-index: -1;
+        }
+
+        /* 頂部導覽 */
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--holy-gold);
+            padding: 1.5rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        /* Hero 區塊 */
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 1rem auto;
+            color: var(--sand-color);
+            font-weight: 300;
+        }
+
+        /* 故事簡介區 */
+        .story-section {
+            padding: 3rem 1.5rem;
+            background: rgba(139, 69, 19, 0.05);
+            margin: 2rem 0;
+            border-left: 4px solid var(--holy-gold);
+        }
+
+        /* 任務列表 */
+        .mission-container {
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mission-card {
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--holy-gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .mission-badge {
+            background: var(--holy-gold);
+            color: black;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .mission-score {
+            float: right;
+            color: var(--sand-color);
+            font-size: 0.9rem;
+        }
+
+        .mission-target {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .mission-target ul {
+            list-style: none;
+            margin-top: 5px;
+        }
+
+        .mission-target li::before {
+            content: "• ";
+            color: var(--holy-gold);
+        }
+
+        /* 腳註 */
+        footer {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mission-card {
+            animation: fadeIn 0.8s ease backwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <header>
+        <div class="header-title">尋回榮耀：重建約櫃之旅</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>鶯歌陶匠之城篇</h1>
+            <p>泥土被火煉、被塑形、成為器皿。<br>你們是護送約櫃的隊伍，在此找回聖潔的見證。</p>
+        </section>
+
+        <section class="mission-container">
+            <div class="story-section">
+                <h3>約櫃的見證</h3>
+                <p>在約櫃裡，放著三樣東西：<b>十誡石版</b>（盟約）、<b>嗎哪的罐子</b>（供應）、<b>亞倫發芽的杖</b>（生命）。最後，我們要將這份同在帶入人群。</p>
+            </div>
+
+            <div class="mission-card" style="animation-delay: 0.2s;">
+                <div class="mission-badge">任務 AB1</div>
+                <span class="mission-score">50 + 10 pts</span>
+                <h3>十誡石版｜陶匠之城的盟約</h3>
+                <p>找到老街中與陶/匠/器皿相關的視覺元素，建立團隊 2026 年的 10 條盟約。</p>
+                <div class="mission-target">
+                    <strong>過關要求：</strong>
+                    <ul>
+                        <li>一人寫 2 個目標 + 理由。</li>
+                        <li>錄製 20 秒影片朗讀盟約。</li>
+                        <li>盟約紙拍照上傳。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mission-card" style="animation-delay: 0.4s;">
+                <div class="mission-badge">任務 AB2</div>
+                <span class="mission-score">50 / 60 pts</span>
+                <h3>嗎哪的罐子｜上帝的供應</h3>
+                <p>從一張聖經小卡開始，透過「以物易物」讓祝福擴張。體驗在曠野中每天剛剛好的供應。</p>
+                <div class="mission-target">
+                    <strong>過關要求：</strong>
+                    <ul>
+                        <li>進行 3 次以上的以物易物。</li>
+                        <li>物品需放入最終購買的約櫃中。</li>
+                        <li>最後比較物品的「價值/效益」。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mission-card" style="animation-delay: 0.6s;">
+                <div class="mission-badge">任務 AB3</div>
+                <span class="mission-score">積分制</span>
+                <h3>亞倫發芽的杖｜生命與保護</h3>
+                <p>在店家尋找具有「發芽、開花、結果」圖案的陶瓷器。死掉的木頭也能開花，代表神揀選的保護。</p>
+                <div class="mission-target">
+                    <strong>過關要求：</strong>
+                    <ul>
+                        <li>發芽、開花、結果各找 3 個圖案（共 9 張照片）。</li>
+                        <li>建立專屬相簿上傳。</li>
+                        <li>每少一張減 3 分，多一張加 3 分。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mission-card" style="animation-delay: 0.8s;">
+                <div class="mission-badge">任務 AB4</div>
+                <span class="mission-score">50 / 60 pts</span>
+                <h3>約櫃容器｜聖潔的護送</h3>
+                <p>用剩餘的 500 元預算，在老街尋找一個最適合盛裝這些見證之物的「器皿」。</p>
+                <div class="mission-target">
+                    <strong>過關要求：</strong>
+                    <ul>
+                        <li>共同討論並購買約櫃容器。</li>
+                        <li>放入盟約與交換來的物資。</li>
+                        <li><b>請路人協助抬起約櫃並合照。</b></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mission-card" style="animation-delay: 1.0s; border: 1px solid var(--holy-gold);">
+                <div class="mission-badge">最終任務</div>
+                <span class="mission-score">70 / 80 pts</span>
+                <h3>神的同在｜建造一座教堂</h3>
+                <p>將積木袋交給路人或店家，邀請他們一起完成最後的 7、8、9 步驟，並將這座「教堂」送給他。</p>
+                <div class="mission-target">
+                    <strong>過關要求：</strong>
+                    <ul>
+                        <li>邊組裝邊念出步驟代表的福音意義。</li>
+                        <li>為這位夥伴進行祝福禱告。</li>
+                        <li>合照並上傳。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>尊重路人｜當作「人」而非「KPI」</p>
+        <p>聖約翰大學團契 ｜ 2026 鶯歌福音行動</p>
+    </footer>
+
+</body>
+</html>
