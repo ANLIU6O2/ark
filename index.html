@@ -38,6 +38,16 @@
       --max: 1100px;
     }
 
+    @keyframes pulse-gold {
+      0% { box-shadow: 0 0 0 0 rgba(215, 179, 93, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(215, 179, 93, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(215, 179, 93, 0); }
+    }
+    .glow-icon {
+      animation: pulse-gold 2s infinite;
+      border: 2px solid rgba(215, 179, 93, 0.8) !important;
+    }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -954,8 +964,8 @@
     <!-- TASKS -->
     <section id="tasks">
       <div class="secHead">
-        <h2>A、B 組 5 個任務（完整內容）</h2>
-        <div class="tag">AB1～AB5 · 目標 · 故事設定 · 分數 · 證據</div>
+        <h2>A、B 組 6 個任務（完整內容）</h2>
+        <div class="tag">AB1～AB6 · 目標 · 故事設定 · 分數 · 證據</div>
       </div>
 
       <div class="secBody">
@@ -1244,6 +1254,52 @@
           </div>
         </details>
 
+        <!-- AB6 -->
+        <details class="task">
+          <summary class="taskSum">
+            <div class="taskLeft">
+              <div class="taskIcon glow-icon" aria-hidden="true" style="background: linear-gradient(145deg, #b07a5a, #8d4f2a); box-shadow: 0 12px 30px rgba(176,122,90,.35); border: 1px solid rgba(255,255,255,0.1);">Ⅵ</div>
+              <div class="taskTitleWrap">
+                <div class="taskTitle">AB6 神的祝福｜「最後一日・信實與差遣」</div>
+                <div class="taskMeta">temp</div>
+              </div>
+            </div>
+          </summary>
+
+          <div class="taskBody">
+            <p>你們今天不是完成了一場活動，而是一起走過一段屬靈的旅程。</p>
+            <p>你們立過約，學習在關係中彼此守望；你們在限制與不確定中，相信神每天剛剛好的供應；你們看見生命如何在不容易中發芽、開花、結果；你們也學會了一件重要的事——不是用自己的方式，而是一起護送神的同在前行。</p>
+            <p>但最重要的是，你們沒有把這一切留給自己。</p>
+            <p>你們把神的同在，帶到了一位還不認識神的人面前，用陪伴、祝福與禱告，讓福音成為一個真實的相遇。</p>
+            
+            <h4>聖經提醒我們</h4>
+            <p>「我要在那邊與你相會。」</p>
+            <p>約櫃不是榮耀的象徵，而是神渴望與人同在的記號。</p>
+            <p>神的同在，不是為了被保存，而是為了被帶到人中間。</p>
+            
+            <h4>願你們被這樣祝福</h4>
+            <ul>
+              <li>當你們迷惘時，記得立約同行，而不是憑感覺前進</li>
+              <li>當你們缺乏時，記得神的供應每天夠用</li>
+              <li>當你們疲累時，記得被揀選的人不該被消耗</li>
+              <li>當你們帶領時，記得慢下來，彼此等候</li>
+              <li>當你們走進世界時，記得神的同在願意與人相會</li>
+            </ul>
+
+            <h4>最後的祝福</h4>
+            <p>願你們一生不只是尋找神的同在，而是真實地活在神的同在中。</p>
+            <p>也願神的同在，因著你們，進入更多人的生命中。</p>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+               <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                 <source src="media/聖經約櫃影片製作.mp4" type="video/mp4">
+                 您的瀏覽器不支援影片播放。
+               </video>
+            </div>
+          </div>
+        </details>
+
       </div>
     </section>
 
@@ -1257,7 +1313,7 @@
         <div class="panel">
           <p>
             下面提供 A/B 兩組快速計分（依你們現場判定：誰先完成、加分條件、照片缺/多等）。填完會自動算總分。
-            ※ AB2（以物易物）最終價值比較：請在最後選「勝/負」。
+            ※ AB2（以物易物）：請直接勾選完成與否。
           </p>
         </div>
 
@@ -1278,10 +1334,10 @@
               </div>
 
               <div class="field">
-                <label>AB2 以物易物價值結果</label>
+                <label>AB2 以物易物完成狀態</label>
                 <select id="a_ab2_win" data-task="c2">
-                  <option value="50">較低（50）</option>
-                  <option value="60">較高（60）</option>
+                  <option value="0">未完成</option>
+                  <option value="0">完成</option>
                 </select>
               </div>
 
@@ -1342,10 +1398,10 @@
               </div>
 
               <div class="field">
-                <label>AB2 以物易物價值結果</label>
+                <label>AB2 以物易物完成狀態</label>
                 <select id="b_ab2_win" data-task="c2">
-                  <option value="50">較低（50）</option>
-                  <option value="60">較高（60）</option>
+                  <option value="0">未完成</option>
+                  <option value="0">完成</option>
                 </select>
               </div>
 
