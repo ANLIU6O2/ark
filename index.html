@@ -587,6 +587,58 @@
       padding: 18px 0 0;
     }
 
+    /* Mobile Optimization */
+    @media (max-width: 768px){
+      .navInner{
+        display: grid;
+        gap: 8px;
+        padding-bottom: 4px;
+      }
+      .navLinks{
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        width: 100%;
+        mask-image: linear-gradient(to right, black 95%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
+      }
+      .navLinks::-webkit-scrollbar{ display:none }
+      
+      .heroBg{ height: 420px; }
+      .heroTitle{ font-size: 26px; }
+      
+      .grid2, .checkRow, .scoreGrid, .fields{
+        grid-template-columns: 1fr;
+      }
+      
+      .secHead{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .tItem{
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .tTime{
+        text-align: left;
+        padding: 4px 10px;
+        width: auto;
+        display: inline-block;
+      }
+      
+      .btnRow{
+        flex-direction: column;
+      }
+      .btn{
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
     /* Print */
     @media print{
       .nav, .btnRow, .heroBg{display:none !important}
@@ -1258,15 +1310,6 @@
         <div class="btnRow">
           <button class="btn" id="resetScore" type="button">清除計分欄位</button>
           <button class="btn primary" id="copySummary" type="button">複製分數摘要（貼到群組）</button>
-        </div>
-
-        <div class="panel" style="margin-top:12px;">
-          <h3>照片替換方式（你可以換成你自己的素材）</h3>
-          <p>
-            目前頁面背景圖使用 Unsplash 連結（線上才會載入）。你若要改成自己的照片：把本檔中 CSS 裡的
-            <code>background: url("...")</code> 連結改成你自己的圖片路徑即可（例如 <code>images/ark.jpg</code>）。
-            若你要完全離線：請把圖片放進同資料夾的 <code>images</code> 目錄。
-          </p>
         </div>
       </div>
     </section>
