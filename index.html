@@ -336,14 +336,14 @@
     .tItem{
       display:flex;
       gap: 12px;
-      align-items:flex-start;
+      align-items: center;
       padding: 12px;
       border-radius: 16px;
       border: 1px solid rgba(215,179,93,.14);
       background: rgba(0,0,0,.16);
     }
     .tTime{
-      min-width: 36px;
+      min-width: 80px;
       padding: 8px 10px;
       border-radius: 14px;
       border: 1px solid rgba(215, 179, 93, 0.4);
@@ -470,7 +470,7 @@
     }
     .checkRow{
       display:grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 10px;
       margin-top: 12px;
     }
@@ -655,6 +655,18 @@
 </head>
 
 <body>
+  <div id="loginModal" style="position:fixed; inset:0; background:#07060a; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
+    <h2 style="color:#d7b35d; font-family:'Noto Serif TC', serif;">尋回榮耀 · 登入系統</h2>
+    <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:300px;">
+      <select id="loginTeam" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
+        <option value="A">Team A (A組)</option>
+        <option value="B">Team B (B組)</option>
+      </select>
+      <input type="password" id="loginPass" placeholder="輸入密碼 (A:777, B:888)" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
+      <button id="btnLogin" style="padding:12px; font-size:16px; cursor:pointer; background:#d7b35d; border:none; border-radius:8px; font-weight:bold;">登入</button>
+    </div>
+    <p id="loginMsg" style="color:#ffcc66; font-size:14px;"></p>
+  </div>
   <div class="heroBg" aria-hidden="true"></div>
 
   <!-- Sticky Navigation -->
@@ -899,6 +911,12 @@
                 <div style="font-size:12px; color: rgba(242,239,231,.72);">完成度</div>
                 <div style="font-weight:700; letter-spacing:.3px;"><span id="pnum">0</span>/5</div>
               </div>
+            </div>
+            
+            <!-- Opponent Progress (Requirement 3) -->
+            <div class="progressWrap" style="margin-top:8px; opacity:0.8;">
+               <div style="font-size:13px; color:#cfc7b5; min-width:80px;">敵隊進度</div>
+               <div class="bar" style="border-color:rgba(184,144,58,.3);"><i id="oppBar" style="width:0%; background: linear-gradient(90deg, #b8903a, #ff6666);"></i></div>
             </div>
 
             <div class="checkRow" role="group" aria-label="task completion checklist">
@@ -1387,7 +1405,266 @@
 
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
+    // --- Global Vars ---
+    const socket = io();
+    let myTeamId = null; // 'A' or 'B'
+    let isLogged = false;
+
+    // --- UI References ---
+    const loginModal = document.getElementById('loginModal');
+    const loginMsg = document.getElementById('loginMsg');
+    const btnLogin = document.getElementById('btnLogin');
+    
+    const pbar = document.getElementById('pbar');
+    const pnum = document.getElementById('pnum');
+    const oppBar = document.getElementById('oppBar');
+    
+    // Checkboxes
+    const checks = Array.from(document.querySelectorAll('.check input[type="checkbox"]'));
+    
+    // Score Fields references
+    const scoreFieldIds = [
+      "a_ab1_first","a_ab1_extra","a_ab2_win","a_ab3_first","a_ab3_photos","a_ab4_first","a_ab5_level",
+      "b_ab1_first","b_ab1_extra","b_ab2_win","b_ab3_first","b_ab3_photos","b_ab4_first","b_ab5_level",
+      "a_note","b_note"
+    ];
+
+    // --- Login Logic ---
+    btnLogin.addEventListener('click', () => {
+      const teamId = document.getElementById('loginTeam').value;
+      const password = document.getElementById('loginPass').value;
+      if(!password) return;
+      
+      socket.emit('login', { teamId, password });
+    });
+
+    socket.on('loginError', (msg) => {
+      loginMsg.textContent = msg;
+    });
+
+    socket.on('loginSuccess', ({ teamId }) => {
+      myTeamId = teamId;
+      isLogged = true;
+      loginModal.style.display = 'none';
+      alert(`歡迎 Team ${teamId}！\n請隨時注意進度條與分數的同步。`);
+      
+      // Update UI title or badge to show current team
+      document.querySelector('.brand').innerHTML += `<span style="margin-left:10px; color:#d7b35d; border:1px solid #d7b35d; padding:2px 6px; border-radius:4px; font-size:12px;">Team ${teamId}</span>`;
+    });
+
+    // --- State Sync Logic ---
+    socket.on('stateUpdate', (allStates) => {
+      if(!isLogged) return;
+
+      const myState = allStates.find(s => s.teamId === myTeamId);
+      const oppState = allStates.find(s => s.teamId !== myTeamId);
+
+      if (myState) updateMyUI(myState);
+      if (oppState) updateOppUI(oppState);
+      
+      // Always update global scoreboard using ALL data
+      updateScoreboard(allStates);
+    });
+
+    function updateMyUI(state) {
+      // 1. Progress Checkboxes
+      state.progress.forEach((done, idx) => {
+        if(checks[idx]) checks[idx].checked = done;
+      });
+      
+      // 2. My Progress Bar
+      const doneCount = state.progress.filter(b=>b).length;
+      pnum.textContent = doneCount;
+      pbar.style.width = (doneCount/5*100) + "%";
+      
+      // 3. Unlock/Lock checks based on sequence (Local UI logic)
+      // (This is mostly visual, server validates too)
+    }
+
+    function updateOppUI(state) {
+      // Opponent Progress Bar
+      const doneCount = state.progress.filter(b=>b).length;
+      oppBar.style.width = (doneCount/5*100) + "%";
+    }
+    
+    function updateScoreboard(allStates) {
+      // We map database fields to HTML IDs
+      // Team A fields -> ids starting with "a_"
+      // Team B fields -> ids starting with "b_"
+      
+      const teamA = allStates.find(s => s.teamId === 'A');
+      const teamB = allStates.find(s => s.teamId === 'B');
+      
+      // Helper to fill fields
+      const fill = (team, prefix) => {
+        if(!team || !team.scoreFields) return;
+        Object.keys(team.scoreFields).forEach(key => {
+          // key matches the HTML id directly (e.g., "a_ab1_first")
+          // Wait, server stores "a_ab1_first"? 
+          // My server code: team.scoreFields[fieldId] = value;
+          // fieldId sent from client is "a_ab1_first".
+          // But "a_ab1_first" implies it belongs to A.
+          // Correct.
+          
+          const el = document.getElementById(key);
+          if(el) {
+             // Avoid overwriting if user is currently typing?
+             // For simple inputs, we just overwrite for sync.
+             if(document.activeElement !== el) {
+                el.value = team.scoreFields[key];
+             }
+          }
+        });
+      };
+
+      if(teamA) fill(teamA, 'a');
+      if(teamB) fill(teamB, 'b');
+      
+      // Recalculate Totals (Local Calc)
+      renderTotals();
+
+      // --- Access Control & Locking (Req 6 & 7) ---
+      
+      scoreFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        
+        const fieldBelongsTo = id.startsWith('a') ? 'A' : 'B';
+        
+        // Rule 1: You can only edit your own team's fields
+        if(fieldBelongsTo !== myTeamId) {
+          el.disabled = true;
+        } else {
+           el.disabled = false;
+        }
+        
+        // Rule 2: Exclusivity Locks (Req 6)
+        // If "First to Upload" is claimed by Opponent, My field is locked to "No"
+        // We check specific pairs.
+        checkLockPair(el, teamA, teamB);
+      });
+    }
+
+    function checkLockPair(el, teamA, teamB) {
+       // Logic: If I am A, and this is "a_ab1_first", check if B has "b_ab1_first" == "10".
+       // If so, disable me and set to 0.
+       
+       if(!teamA || !teamB) return;
+       const id = el.id;
+       
+       // AB1 First (Yes=10)
+       if(id === 'a_ab1_first' && myTeamId === 'A') {
+          if(getVal(teamB, 'b_ab1_first') == '10') { el.value = '0'; el.disabled = true; }
+       }
+       if(id === 'b_ab1_first' && myTeamId === 'B') {
+          if(getVal(teamA, 'a_ab1_first') == '10') { el.value = '0'; el.disabled = true; }
+       }
+
+       // AB3 First (Yes=60)
+       if(id === 'a_ab3_first' && myTeamId === 'A') {
+          if(getVal(teamB, 'b_ab3_first') == '60') { el.value = '50'; el.disabled = true; }
+       }
+       if(id === 'b_ab3_first' && myTeamId === 'B') {
+          if(getVal(teamA, 'a_ab3_first') == '60') { el.value = '50'; el.disabled = true; }
+       }
+
+       // AB4 First (Yes=60)
+       if(id === 'a_ab4_first' && myTeamId === 'A') {
+          if(getVal(teamB, 'b_ab4_first') == '60') { el.value = '50'; el.disabled = true; }
+       }
+       if(id === 'b_ab4_first' && myTeamId === 'B') {
+          if(getVal(teamA, 'a_ab4_first') == '60') { el.value = '50'; el.disabled = true; }
+       }
+    }
+    
+    function getVal(teamState, key){
+        return (teamState.scoreFields && teamState.scoreFields[key]) || "";
+    }
+
+
+    // --- Event Listeners (Emit to Server) ---
+
+    // 1. Checkboxes
+    checks.forEach((ch, idx) => {
+      ch.addEventListener('click', (e) => {
+        // Validation: Sequential Order
+        if(ch.checked && idx > 0 && !checks[idx-1].checked) {
+            e.preventDefault();
+            alert("請按照順序完成任務！");
+            return;
+        }
+        if(!ch.checked && idx < checks.length - 1 && checks[idx+1].checked) {
+            e.preventDefault();
+            alert("請先取消下一關！");
+            return;
+        }
+        
+        // Emit
+        socket.emit('updateProgress', { teamId: myTeamId, index: idx, checked: ch.checked });
+      });
+    });
+
+    // 2. Score Fields
+    scoreFieldIds.forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      
+      el.addEventListener('change', () => {
+         const val = el.value;
+         
+         // Special handling for "First" fields (Req 6)
+         // If I am setting "Yes", I try to claim lock.
+         // Simplified: Just update field. Server/Client sync will handle the lock via state update logic above.
+         // If I set "10" here, I emit it.
+         // If opponent already had "10", the next stateUpdate will see that and overwrite my "10" back to "0" (via checkLockPair).
+         // Ideally we check BEFORE emit, but async is fine for this prototype.
+         
+         socket.emit('updateScoreField', { teamId: myTeamId, fieldId: id, value: val });
+      });
+      
+      // Also emit text inputs on blur
+      if(el.type === 'text' || el.type === 'number') {
+         el.addEventListener('blur', () => {
+             socket.emit('updateScoreField', { teamId: myTeamId, fieldId: id, value: el.value });
+         });
+      }
+    });
+
+    // --- Client Side Calc (Visual Only) ---
+    // (Copied from original logic for rendering totals)
+    function clampInt(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
+    function scoreAB1(first, extra){ return 50 + clampInt(first) + clampInt(extra)*5; }
+    function scoreAB3(base, photo){ return clampInt(base) + (clampInt(photo)-9)*3; }
+    function scoreAB4(base){ return clampInt(base); }
+    function scoreAB2(v){ return clampInt(v); }
+    function scoreAB5(v){ return clampInt(v); }
+
+    function totalTeam(prefix){
+      const el = (id) => { const e = document.getElementById(prefix+id); return e ? e.value : 0; };
+      
+      const ab1First = el("_ab1_first");
+      const ab1Extra = el("_ab1_extra");
+      const ab2Win   = el("_ab2_win");
+      const ab3Base  = el("_ab3_first");
+      const ab3Photos= el("_ab3_photos");
+      const ab4Base  = el("_ab4_first");
+      const ab5Level = el("_ab5_level");
+
+      const s1 = scoreAB1(ab1First, ab1Extra);
+      const s2 = scoreAB2(ab2Win);
+      const s3 = scoreAB3(ab3Base, ab3Photos);
+      const s4 = scoreAB4(ab4Base);
+      const s5 = scoreAB5(ab5Level);
+      return s1+s2+s3+s4+s5;
+    }
+
+    function renderTotals(){
+      document.getElementById("a_total").textContent = totalTeam("a");
+      document.getElementById("b_total").textContent = totalTeam("b");
+    }
+
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
       a.addEventListener('click', (e)=>{
@@ -1399,317 +1676,10 @@
       });
     });
 
-    // Progress (localStorage)
-    const checks = Array.from(document.querySelectorAll('.check input[type="checkbox"]'));
-    const pbar = document.getElementById('pbar');
-    const pnum = document.getElementById('pnum');
+    // Reset Buttons (disabled for fairness, or could be admin only. Hiding for now to prevent accidents)
+    document.getElementById('resetProgress').style.display = 'none';
+    document.getElementById('resetScore').style.display = 'none';
 
-    // Score fields references
-    const scoreFields = [
-      "a_ab1_first","a_ab1_extra","a_ab2_win","a_ab3_first","a_ab3_photos","a_ab4_first","a_ab5_level",
-      "b_ab1_first","b_ab1_extra","b_ab2_win","b_ab3_first","b_ab3_photos","b_ab4_first","b_ab5_level",
-      "a_note","b_note"
-    ].map(id=>document.getElementById(id)).filter(Boolean);
-
-    function loadProgress(){
-      checks.forEach(ch=>{
-        const key = "ark_progress_" + ch.dataset.key;
-        const saved = localStorage.getItem(key);
-        ch.checked = saved === "1";
-      });
-      updateProgress();
-    }
-
-    function updateProgress(){
-      const done = checks.filter(c=>c.checked).length;
-      pnum.textContent = done;
-      pbar.style.width = (done/5*100) + "%";
-      checkScoreAccess();
-    }
-
-    // Enable/Disable score fields based on progress
-    function checkScoreAccess(){
-      // Map task keys to specific field IDs or data attributes
-      // HTML has data-task="c1", "c2"... on inputs
-      checks.forEach(ch=>{
-        const taskId = ch.id; // c1, c2...
-        const isDone = ch.checked;
-        const inputs = document.querySelectorAll(`[data-task="${taskId}"]`);
-        inputs.forEach(inp=>{
-          if(!isDone){
-            inp.disabled = true;
-            // Optionally reset value if needed, but keeping it might be safer for accidental unchecks
-          } else {
-            // If done, we enable it. 
-            // BUT: we must respect mutual exclusivity logic (e.g. if A is Yes, B should remain disabled/No)
-            // We'll re-run exclusivity checks after enabling to ensure correct state.
-            inp.disabled = false;
-          }
-        });
-      });
-      
-      // Re-apply exclusivity rules to ensure "Yes" on one side keeps the other disabled/No if needed
-      applyExclusivity();
-    }
-
-    checks.forEach((ch, idx)=>{
-      ch.addEventListener('click', (e)=>{
-        // Enforce sequential checking
-        if(ch.checked){
-          if(idx > 0 && !checks[idx-1].checked){
-            e.preventDefault();
-            alert("請按照順序完成任務！\n必須先完成上一關才能進行這一關。");
-            return;
-          }
-        } else {
-          if(idx < checks.length - 1 && checks[idx+1].checked){
-             e.preventDefault();
-             alert("無法取消！\n請先取消下一關的紀錄，保持進度連續。");
-             return;
-          }
-        }
-
-        const key = "ark_progress_" + ch.dataset.key;
-        localStorage.setItem(key, ch.checked ? "1" : "0");
-        updateProgress();
-      });
-    });
-
-    document.getElementById('resetProgress').addEventListener('click', ()=>{
-      checks.forEach(ch=>{
-        const key = "ark_progress_" + ch.dataset.key;
-        localStorage.removeItem(key);
-        ch.checked = false;
-      });
-      updateProgress();
-    });
-
-    // Score calc & Exclusivity Logic
-    function clampInt(v){
-      const n = parseInt(v,10);
-      return isNaN(n) ? 0 : n;
-    }
-
-    function scoreAB1(firstUpload, extraCount){
-      return 50 + clampInt(firstUpload) + clampInt(extraCount) * 5;
-    }
-    function scoreAB3(base, photoCount){
-      const baseN = clampInt(base);
-      const photos = clampInt(photoCount);
-      const delta = (photos - 9) * 3;
-      return baseN + delta;
-    }
-    function scoreAB4(base){ return clampInt(base); }
-    function scoreAB2(v){ return clampInt(v); }
-    function scoreAB5(v){ return clampInt(v); }
-
-    function totalTeam(prefix){
-      const ab1First = document.getElementById(prefix+"_ab1_first").value;
-      const ab1Extra = document.getElementById(prefix+"_ab1_extra").value;
-      const ab2Win   = document.getElementById(prefix+"_ab2_win").value;
-      const ab3Base  = document.getElementById(prefix+"_ab3_first").value;
-      const ab3Photos= document.getElementById(prefix+"_ab3_photos").value;
-      const ab4Base  = document.getElementById(prefix+"_ab4_first").value;
-      const ab5Level = document.getElementById(prefix+"_ab5_level").value;
-
-      const s1 = scoreAB1(ab1First, ab1Extra);
-      const s2 = scoreAB2(ab2Win);
-      const s3 = scoreAB3(ab3Base, ab3Photos);
-      const s4 = scoreAB4(ab4Base);
-      const s5 = scoreAB5(ab5Level);
-
-      return {total: (s1+s2+s3+s4+s5), s1,s2,s3,s4,s5};
-    }
-
-    function renderTotals(){
-      const A = totalTeam("a");
-      const B = totalTeam("b");
-      document.getElementById("a_total").textContent = A.total;
-      document.getElementById("b_total").textContent = B.total;
-
-      const payload = {};
-      scoreFields.forEach(el=>{
-        payload[el.id] = el.value;
-      });
-      localStorage.setItem("ark_score_fields", JSON.stringify(payload));
-    }
-
-    // Mutual Exclusivity Helpers
-    function setupToggle(idA, idB, highVal, lowVal){
-      const elA = document.getElementById(idA);
-      const elB = document.getElementById(idB);
-      if(!elA || !elB) return;
-
-      elA.addEventListener('change', ()=>{
-        if(elA.disabled) return;
-        if(elA.value == highVal) elB.value = lowVal;
-        else elB.value = highVal;
-        renderTotals();
-      });
-      elB.addEventListener('change', ()=>{
-        if(elB.disabled) return;
-        if(elB.value == highVal) elA.value = lowVal;
-        else elA.value = highVal;
-        renderTotals();
-      });
-    }
-
-    function setupFirstExclusive(idA, idB, yesVal, noVal){
-      const elA = document.getElementById(idA);
-      const elB = document.getElementById(idB);
-      if(!elA || !elB) return;
-
-      // When A changes
-      elA.addEventListener('change', ()=>{
-        if(elA.disabled) return;
-        if(elA.value == yesVal){
-          // A is Yes -> B must be No and Locked
-          elB.value = noVal;
-          elB.disabled = true;
-        } else {
-          // A is No -> B can be anything (if task is done)
-          // We check if B task is actually done in checkScoreAccess, 
-          // but here we can just unlock it. checkScoreAccess will re-lock if needed.
-           // However, simple approach: check progress of this task
-           const taskKey = elB.getAttribute('data-task');
-           const taskDone = document.getElementById(taskKey).checked;
-           if(taskDone) elB.disabled = false;
-        }
-        renderTotals();
-      });
-
-      // When B changes
-      elB.addEventListener('change', ()=>{
-        if(elB.disabled) return;
-        if(elB.value == yesVal){
-          elA.value = noVal;
-          elA.disabled = true;
-        } else {
-           const taskKey = elA.getAttribute('data-task');
-           const taskDone = document.getElementById(taskKey).checked;
-           if(taskDone) elA.disabled = false;
-        }
-        renderTotals();
-      });
-    }
-    
-    function setupLevelExclusive(idA, idB, topVal){
-      const elA = document.getElementById(idA);
-      const elB = document.getElementById(idB);
-      
-      elA.addEventListener('change', ()=>{
-        if(elA.value == topVal && elB.value == topVal){
-           elB.selectedIndex = 1; // bump down to middle option
-        }
-        renderTotals();
-      });
-      elB.addEventListener('change', ()=>{
-        if(elB.value == topVal && elA.value == topVal){
-           elA.selectedIndex = 1; 
-        }
-        renderTotals();
-      });
-    }
-
-    // Apply rules (run on load/update)
-    function applyExclusivity(){
-      // AB1 First (Yes=10, No=0)
-      applyFirstLogic("a_ab1_first", "b_ab1_first", "10", "0");
-      // AB3 First (Yes=60, No=50)
-      applyFirstLogic("a_ab3_first", "b_ab3_first", "60", "50");
-      // AB4 First (Yes=60, No=50)
-      applyFirstLogic("a_ab4_first", "b_ab4_first", "60", "50");
-    }
-
-    function applyFirstLogic(idA, idB, yesVal, noVal){
-       const elA = document.getElementById(idA);
-       const elB = document.getElementById(idB);
-       if(!elA || !elB) return;
-       
-       // If A is Yes, force B No and Disable B
-       if(elA.value == yesVal && !elA.disabled){
-         elB.value = noVal;
-         elB.disabled = true;
-       } 
-       // If B is Yes, force A No and Disable A
-       else if(elB.value == yesVal && !elB.disabled){
-         elA.value = noVal;
-         elA.disabled = true;
-       }
-    }
-
-    // Initialize listeners
-    setupFirstExclusive("a_ab1_first", "b_ab1_first", "10", "0");
-    setupFirstExclusive("a_ab3_first", "b_ab3_first", "60", "50");
-    setupFirstExclusive("a_ab4_first", "b_ab4_first", "60", "50");
-    setupToggle("a_ab2_win", "b_ab2_win", "60", "50"); // High=60, Low=50
-    setupLevelExclusive("a_ab5_level", "b_ab5_level", "80");
-
-    function loadScoreFields(){
-      try{
-        const raw = localStorage.getItem("ark_score_fields");
-        if(raw) {
-          const data = JSON.parse(raw);
-          scoreFields.forEach(el=>{
-            if(typeof data[el.id] !== "undefined") el.value = data[el.id];
-          });
-        }
-      }catch(e){}
-      renderTotals();
-      // Apply locks after loading values
-      checkScoreAccess();
-    }
-
-    scoreFields.forEach(el=>{
-      el.addEventListener('input', renderTotals);
-      // Change is handled by specific setups above, but redundancy is fine
-    });
-
-    document.getElementById("resetScore").addEventListener("click", ()=>{
-      scoreFields.forEach(el=>{
-        if(el.tagName === "SELECT") el.selectedIndex = 0;
-        else el.value = (el.type === "number") ? 0 : "";
-      });
-      localStorage.removeItem("ark_score_fields");
-      renderTotals();
-      checkScoreAccess(); // re-lock based on logic
-    });
-
-    document.getElementById("copySummary").addEventListener("click", async ()=>{
-      const A = totalTeam("a");
-      const B = totalTeam("b");
-      const aNote = document.getElementById("a_note").value || "（無）";
-      const bNote = document.getElementById("b_note").value || "（無）";
-
-      const msg =
-`【約櫃之旅｜分數摘要】
-A組：${A.total}
-- AB1 十誡：${A.s1}
-- AB2 嗎哪：${A.s2}
-- AB3 發芽杖：${A.s3}
-- AB4 約櫃：${A.s4}
-- AB5 同在：${A.s5}
-備註：${aNote}
-
-B組：${B.total}
-- AB1 十誡：${B.s1}
-- AB2 嗎哪：${B.s2}
-- AB3 發芽杖：${B.s3}
-- AB4 約櫃：${B.s4}
-- AB5 同在：${B.s5}
-備註：${bNote}`;
-
-      try{
-        await navigator.clipboard.writeText(msg);
-        alert("已複製！可以直接貼到群組。");
-      }catch(e){
-        prompt("你的瀏覽器不允許直接複製，請手動複製下方內容：", msg);
-      }
-    });
-
-    // Init
-    loadProgress();
-    loadScoreFields();
   </script>
 </body>
 </html>
