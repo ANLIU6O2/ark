@@ -612,7 +612,7 @@
         align-items: flex-start;
       }
       .tTime{
-        text-align: left;
+        text-align: center;
         padding: 4px 10px;
         width: auto;
         display: inline-block;
@@ -656,13 +656,13 @@
 
 <body>
   <div id="loginModal" style="position:fixed; inset:0; background:#07060a; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
-    <h2 style="color:#d7b35d; font-family:'Noto Serif TC', serif;">尋回榮耀 · 登入系統</h2>
+    <h2 style="color:#d7b35d; font-family:'Noto Serif TC', serif;">尋回榮耀：重建約櫃之旅</h2>
     <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:300px;">
       <select id="loginTeam" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
-        <option value="A">Team A (A組)</option>
-        <option value="B">Team B (B組)</option>
+        <option value="A">A組</option>
+        <option value="B">B組</option>
       </select>
-      <input type="password" id="loginPass" placeholder="輸入密碼 (A:777, B:888)" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
+      <input type="password" id="loginPass" placeholder="輸入密碼" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
       <button id="btnLogin" style="padding:12px; font-size:16px; cursor:pointer; background:#d7b35d; border:none; border-radius:8px; font-weight:bold;">登入</button>
     </div>
     <p id="loginMsg" style="color:#ffcc66; font-size:14px;"></p>
@@ -1448,10 +1448,9 @@
       myTeamId = teamId;
       isLogged = true;
       loginModal.style.display = 'none';
-      alert(`歡迎 Team ${teamId}！\n請隨時注意進度條與分數的同步。`);
       
       // Update UI title or badge to show current team
-      document.querySelector('.brand').innerHTML += `<span style="margin-left:10px; color:#d7b35d; border:1px solid #d7b35d; padding:2px 6px; border-radius:4px; font-size:12px;">Team ${teamId}</span>`;
+      document.querySelector('.brand').innerHTML += `<span style="margin-left:5px; color:#d7b35d; border:1px solid #d7b35d; padding:2px; border-radius:4px; font-size:12px;">Team ${teamId}</span>`;
     });
 
     // --- State Sync Logic ---
