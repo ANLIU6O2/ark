@@ -135,6 +135,7 @@
       box-shadow: 0 10px 25px rgba(215,179,93,.18);
       position:relative;
       overflow:hidden;
+      animation: sigil-glow 3s ease-in-out infinite alternate;
     }
     .sigil:after{
       content:"";
@@ -145,6 +146,10 @@
       animation: spin 7s linear infinite;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes sigil-glow {
+      0% { box-shadow: 0 5px 15px rgba(215,179,93,.3); transform: scale(1); filter: brightness(1); }
+      100% { box-shadow: 0 0 25px rgba(215,179,93,.8), 0 0 10px rgba(255,255,255,0.4); transform: scale(1.08); filter: brightness(1.2); }
+    }
 
     .navLinks{
       display:flex; gap:10px; flex-wrap:wrap;
@@ -1261,7 +1266,7 @@
               <div class="taskIcon glow-icon" aria-hidden="true" style="background: linear-gradient(145deg, #b07a5a, #8d4f2a); box-shadow: 0 12px 30px rgba(176,122,90,.35); border: 1px solid rgba(255,255,255,0.1);">Ⅵ</div>
               <div class="taskTitleWrap">
                 <div class="taskTitle">AB6 神的祝福｜「最後一日・信實與差遣」</div>
-                <div class="taskMeta">temp</div>
+                <div class="taskMeta">最後的祝福語</div>
               </div>
             </div>
           </summary>
