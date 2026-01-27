@@ -91,7 +91,7 @@
     a:hover{opacity:.9; text-decoration:underline}
 
     .wrap{max-width:var(--max); margin:0 auto; padding:0 18px 90px}
-    .topPad{padding-top: 36px}
+    .topPad{padding-top: 24px}
 
     /* Sticky nav */
     .nav{
@@ -163,7 +163,7 @@
 
     /* Hero */
     header.hero{
-      padding: 58px 0 18px;
+      padding: 36px 0 18px;
       position:relative;
     }
     .heroGrid{
@@ -211,7 +211,7 @@
       margin: 0 0 16px;
     }
 
-    .badgeRow{display:flex; gap:10px; flex-wrap:wrap; position:relative}
+    .badgeRow{display:flex; gap:10px; flex-wrap:wrap; position:relative; margin-bottom: 16px;}
     .badge{
       border-radius: 999px;
       padding: 7px 12px;
@@ -343,15 +343,17 @@
       background: rgba(0,0,0,.16);
     }
     .tTime{
-      min-width: 92px;
+      min-width: 36px;
       padding: 8px 10px;
       border-radius: 14px;
-      border: 1px solid rgba(242,239,231,.10);
-      background: rgba(18,14,22,.55);
-      font-size: 12px;
-      color: rgba(242,239,231,.9);
+      border: 1px solid rgba(215, 179, 93, 0.4);
+      background: linear-gradient(145deg, rgba(215, 179, 93, 0.15), rgba(18, 14, 22, 0.6));
+      font-size: 13px;
+      color: var(--gold);
       text-align:center;
-      font-weight:600;
+      font-weight:700;
+      box-shadow: 0 4px 15px rgba(215, 179, 93, 0.1);
+      letter-spacing: 0.5px;
     }
     .tText{
       flex:1;
@@ -410,32 +412,19 @@
       font-family:"Noto Serif TC", serif;
       font-size: 16px;
       letter-spacing:.4px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      line-height: 1.35;
     }
     .taskMeta{
       margin-top: 2px;
       color: rgba(242,239,231,.72);
       font-size: 12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      line-height: 1.4;
     }
     .taskRight{
-      display:flex; gap:8px; align-items:center;
-      flex:0 0 auto;
+      display:flex; gap:8px; align-items:center; flex-wrap: wrap;
+      flex:0 1 auto;
+      justify-content: flex-end;
     }
-    .pill{
-      font-size: 12px;
-      border-radius: 999px;
-      padding: 7px 10px;
-      border: 1px solid rgba(242,239,231,.10);
-      background: rgba(18,14,22,.55);
-      color: rgba(242,239,231,.88);
-      white-space:nowrap;
-    }
-    .pill.gold{border-color: rgba(215,179,93,.26); color: rgba(215,179,93,.95)}
     .taskBody{
       padding: 0 14px 14px;
       color: var(--muted);
@@ -637,6 +626,16 @@
         justify-content: center;
         text-align: center;
       }
+      
+      summary.taskSum {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .taskRight {
+        justify-content: flex-start;
+        width: 100%;
+      }
     }
 
     /* Print */
@@ -702,13 +701,21 @@
             <div>「約櫃不是神本身，卻是神選擇與人相會的地方。」</div>
             <div style="margin-top:8px;">
               你們要做的，不只是完成任務，<em>而是一起學習怎麼護送神的同在同行</em>。
-            </div>
-          </div>
-        </div>
-
-        <div class="sideStack">
+                        </div>
+                      </div>
+            
+                      <!-- Video Insert -->
+                      <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+                        <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                          <source src="media/製作約櫃神聖啟示影片.mp4" type="video/mp4">
+                          您的瀏覽器不支援影片播放。
+                        </video>
+                      </div>
+                    </div>
+            
+                    <div class="sideStack">
           <div class="miniCard">
-            <h3>今日目標（一句話）</h3>
+            <h3>今日目標</h3>
             <p>
               在陶匠之城的街巷裡，把「立約、供應、扶持、敬畏」找回來，最後讓同在走向一個人——用尊重與祝福，讓福音成為真實相遇。
             </p>
@@ -736,6 +743,14 @@
         <div class="tag">時代背景 · 神的同在 · 立約的記號</div>
       </div>
       <div class="secBody">
+        <!-- Video Insert -->
+        <div style="margin-bottom: 18px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+          <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+            <source src="media/聖經約櫃運送影片製作.mp4" type="video/mp4">
+            您的瀏覽器不支援影片播放。
+          </video>
+        </div>
+
         <div class="panel">
           <p>
             在以色列的歷史中，有一個不是武器、不是王權、卻讓人敬畏的器物——約櫃。約櫃不是神本身，卻是神選擇與人相會的地方。
@@ -790,6 +805,13 @@
         <div class="tag">物資 · 任務卡 · 封印卡 · 同在卡</div>
       </div>
       <div class="secBody">
+
+        <div style="margin-bottom: 18px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+          <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+            <source src="media/製作約櫃的影片生成.mp4" type="video/mp4">
+            您的瀏覽器不支援影片播放。
+          </video>
+        </div>
         <div class="grid2">
           <div class="panel">
             <h3>道具清單（務必完整）</h3>
@@ -961,6 +983,14 @@
             <div class="note">
               過關證據：影片＋盟約紙拍照上傳（請務必將盟約紙收好，最後我們會需要你放進約櫃裡面）。
             </div>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+              <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                <source src="media/製作十誡神聖影片.mp4" type="video/mp4">
+                您的瀏覽器不支援影片播放。
+              </video>
+            </div>
           </div>
         </details>
 
@@ -1007,6 +1037,14 @@
               <li>物品價值/效益較高者：60 分</li>
               <li>另一組：50 分</li>
             </ul>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+              <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                <source src="media/聖經馬拿罐子影片製作.mp4" type="video/mp4">
+                您的瀏覽器不支援影片播放。
+              </video>
+            </div>
           </div>
         </details>
 
@@ -1060,6 +1098,14 @@
               <li>後完成：50 分</li>
               <li>每少一張：減 3 分；每多一張：加 3 分（以此類推）</li>
             </ul>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+              <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                <source src="media/亞倫的杖：神聖啟示影片製作.mp4" type="video/mp4">
+                您的瀏覽器不支援影片播放。
+              </video>
+            </div>
           </div>
         </details>
 
@@ -1103,6 +1149,14 @@
               <li>先完成：60 分</li>
               <li>後完成：50 分</li>
             </ul>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+              <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                <source src="media/約櫃影片製作與啟示.mp4" type="video/mp4">
+                您的瀏覽器不支援影片播放。
+              </video>
+            </div>
           </div>
         </details>
 
@@ -1161,6 +1215,14 @@
               2) 別把路人當 KPI：把他當「人」。你們的態度本身就是福音。<br>
               3) 「一人一句話禱告」：祝福、不要審判；求平安、不要講罪（第一次接觸很重要）。
             </div>
+
+            <!-- Video Insert -->
+            <div style="margin-top: 16px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(215,179,93,.25); box-shadow: 0 10px 30px rgba(0,0,0,.4);">
+              <video controls playsinline preload="metadata" style="width: 100%; display: block; aspect-ratio: 16/9; background: #000;">
+                <source src="media/製作約櫃啟示影片.mp4" type="video/mp4">
+                您的瀏覽器不支援影片播放。
+              </video>
+            </div>
           </div>
         </details>
 
@@ -1187,51 +1249,53 @@
             <div class="fields">
               <div class="field">
                 <label>AB1 是否先上傳？</label>
-                <select id="a_ab1_first">
+                <select id="a_ab1_first" data-task="c1">
                   <option value="0">否</option>
                   <option value="10">是（+10）</option>
                 </select>
               </div>
               <div class="field">
                 <label>AB1 額外盟約（總條數）</label>
-                <input id="a_ab1_extra" type="number" min="0" value="0" />
+                <input id="a_ab1_extra" data-task="c1" type="number" min="0" value="0" />
+              </div>
+
+              <div class="field">
+                <label>AB2 以物易物價值結果</label>
+                <select id="a_ab2_win" data-task="c2">
+                  <option value="50">較低（50）</option>
+                  <option value="60">較高（60）</option>
+                </select>
               </div>
 
               <div class="field">
                 <label>AB3 是否先完成？</label>
-                <select id="a_ab3_first">
+                <select id="a_ab3_first" data-task="c3">
                   <option value="50">否（50）</option>
                   <option value="60">是（60）</option>
                 </select>
               </div>
               <div class="field">
                 <label>AB3 照片總張數（目標 9）</label>
-                <input id="a_ab3_photos" type="number" min="0" value="9" />
+                <input id="a_ab3_photos" data-task="c3" type="number" min="0" value="9" />
               </div>
 
               <div class="field">
                 <label>AB4 是否先完成？</label>
-                <select id="a_ab4_first">
+                <select id="a_ab4_first" data-task="c4">
                   <option value="50">否（50）</option>
                   <option value="60">是（60）</option>
                 </select>
               </div>
+              
               <div class="field">
                 <label>AB5 完成程度</label>
-                <select id="a_ab5_level">
+                <select id="a_ab5_level" data-task="c5">
                   <option value="50">做到一半（+50）</option>
                   <option value="70">後完成（+70）</option>
                   <option value="80">先完成（+80）</option>
                 </select>
               </div>
 
-              <div class="field">
-                <label>AB2 以物易物價值結果</label>
-                <select id="a_ab2_win">
-                  <option value="50">較低（50）</option>
-                  <option value="60">較高（60）</option>
-                </select>
-              </div>
               <div class="field">
                 <label>備註（可不填）</label>
                 <input id="a_note" type="text" placeholder="例如：AB3 多拍 2 張加分…" />
@@ -1249,51 +1313,53 @@
             <div class="fields">
               <div class="field">
                 <label>AB1 是否先上傳？</label>
-                <select id="b_ab1_first">
+                <select id="b_ab1_first" data-task="c1">
                   <option value="0">否</option>
                   <option value="10">是（+10）</option>
                 </select>
               </div>
               <div class="field">
                 <label>AB1 額外盟約（總條數）</label>
-                <input id="b_ab1_extra" type="number" min="0" value="0" />
+                <input id="b_ab1_extra" data-task="c1" type="number" min="0" value="0" />
+              </div>
+
+              <div class="field">
+                <label>AB2 以物易物價值結果</label>
+                <select id="b_ab2_win" data-task="c2">
+                  <option value="50">較低（50）</option>
+                  <option value="60">較高（60）</option>
+                </select>
               </div>
 
               <div class="field">
                 <label>AB3 是否先完成？</label>
-                <select id="b_ab3_first">
+                <select id="b_ab3_first" data-task="c3">
                   <option value="50">否（50）</option>
                   <option value="60">是（60）</option>
                 </select>
               </div>
               <div class="field">
                 <label>AB3 照片總張數（目標 9）</label>
-                <input id="b_ab3_photos" type="number" min="0" value="9" />
+                <input id="b_ab3_photos" data-task="c3" type="number" min="0" value="9" />
               </div>
 
               <div class="field">
                 <label>AB4 是否先完成？</label>
-                <select id="b_ab4_first">
+                <select id="b_ab4_first" data-task="c4">
                   <option value="50">否（50）</option>
                   <option value="60">是（60）</option>
                 </select>
               </div>
+              
               <div class="field">
                 <label>AB5 完成程度</label>
-                <select id="b_ab5_level">
+                <select id="b_ab5_level" data-task="c5">
                   <option value="50">做到一半（+50）</option>
                   <option value="70">後完成（+70）</option>
                   <option value="80">先完成（+80）</option>
                 </select>
               </div>
 
-              <div class="field">
-                <label>AB2 以物易物價值結果</label>
-                <select id="b_ab2_win">
-                  <option value="50">較低（50）</option>
-                  <option value="60">較高（60）</option>
-                </select>
-              </div>
               <div class="field">
                 <label>備註（可不填）</label>
                 <input id="b_note" type="text" placeholder="例如：AB1 額外盟約 3 條…" />
@@ -1338,6 +1404,13 @@
     const pbar = document.getElementById('pbar');
     const pnum = document.getElementById('pnum');
 
+    // Score fields references
+    const scoreFields = [
+      "a_ab1_first","a_ab1_extra","a_ab2_win","a_ab3_first","a_ab3_photos","a_ab4_first","a_ab5_level",
+      "b_ab1_first","b_ab1_extra","b_ab2_win","b_ab3_first","b_ab3_photos","b_ab4_first","b_ab5_level",
+      "a_note","b_note"
+    ].map(id=>document.getElementById(id)).filter(Boolean);
+
     function loadProgress(){
       checks.forEach(ch=>{
         const key = "ark_progress_" + ch.dataset.key;
@@ -1346,13 +1419,56 @@
       });
       updateProgress();
     }
+
     function updateProgress(){
       const done = checks.filter(c=>c.checked).length;
       pnum.textContent = done;
       pbar.style.width = (done/5*100) + "%";
+      checkScoreAccess();
     }
-    checks.forEach(ch=>{
-      ch.addEventListener('change', ()=>{
+
+    // Enable/Disable score fields based on progress
+    function checkScoreAccess(){
+      // Map task keys to specific field IDs or data attributes
+      // HTML has data-task="c1", "c2"... on inputs
+      checks.forEach(ch=>{
+        const taskId = ch.id; // c1, c2...
+        const isDone = ch.checked;
+        const inputs = document.querySelectorAll(`[data-task="${taskId}"]`);
+        inputs.forEach(inp=>{
+          if(!isDone){
+            inp.disabled = true;
+            // Optionally reset value if needed, but keeping it might be safer for accidental unchecks
+          } else {
+            // If done, we enable it. 
+            // BUT: we must respect mutual exclusivity logic (e.g. if A is Yes, B should remain disabled/No)
+            // We'll re-run exclusivity checks after enabling to ensure correct state.
+            inp.disabled = false;
+          }
+        });
+      });
+      
+      // Re-apply exclusivity rules to ensure "Yes" on one side keeps the other disabled/No if needed
+      applyExclusivity();
+    }
+
+    checks.forEach((ch, idx)=>{
+      ch.addEventListener('click', (e)=>{
+        // Enforce sequential checking
+        if(ch.checked){
+          if(idx > 0 && !checks[idx-1].checked){
+            e.preventDefault();
+            alert("請按照順序完成任務！\n必須先完成上一關才能進行這一關。");
+            return;
+          }
+        } else {
+          if(idx < checks.length - 1 && checks[idx+1].checked){
+             e.preventDefault();
+             alert("無法取消！\n請先取消下一關的紀錄，保持進度連續。");
+             return;
+          }
+        }
+
         const key = "ark_progress_" + ch.dataset.key;
         localStorage.setItem(key, ch.checked ? "1" : "0");
         updateProgress();
@@ -1368,58 +1484,39 @@
       updateProgress();
     });
 
-    // Score calc
-    const scoreFields = [
-      "a_ab1_first","a_ab1_extra","a_ab3_first","a_ab3_photos","a_ab4_first","a_ab5_level","a_ab2_win",
-      "b_ab1_first","b_ab1_extra","b_ab3_first","b_ab3_photos","b_ab4_first","b_ab5_level","b_ab2_win",
-      "a_note","b_note"
-    ].map(id=>document.getElementById(id));
-
+    // Score calc & Exclusivity Logic
     function clampInt(v){
       const n = parseInt(v,10);
       return isNaN(n) ? 0 : n;
     }
 
-    // AB1 base = 50; extra covenant +5 each; first upload +10 optional
     function scoreAB1(firstUpload, extraCount){
       return 50 + clampInt(firstUpload) + clampInt(extraCount) * 5;
     }
-
-    // AB3 base = 60 if first, else 50; photo adjustment: target 9, missing -3 each, extra +3 each
     function scoreAB3(base, photoCount){
       const baseN = clampInt(base);
       const photos = clampInt(photoCount);
-      const delta = (photos - 9) * 3; // if less, negative; if more, positive
+      const delta = (photos - 9) * 3;
       return baseN + delta;
     }
-
-    // AB4 base: 60 if first else 50
     function scoreAB4(base){ return clampInt(base); }
-
-    // AB2: 60 if higher value else 50
     function scoreAB2(v){ return clampInt(v); }
-
-    // AB5: +80 (first), +70 (later), +50 (half)
     function scoreAB5(v){ return clampInt(v); }
 
     function totalTeam(prefix){
       const ab1First = document.getElementById(prefix+"_ab1_first").value;
       const ab1Extra = document.getElementById(prefix+"_ab1_extra").value;
-
+      const ab2Win   = document.getElementById(prefix+"_ab2_win").value;
       const ab3Base  = document.getElementById(prefix+"_ab3_first").value;
       const ab3Photos= document.getElementById(prefix+"_ab3_photos").value;
-
       const ab4Base  = document.getElementById(prefix+"_ab4_first").value;
-
       const ab5Level = document.getElementById(prefix+"_ab5_level").value;
 
-      const ab2Win   = document.getElementById(prefix+"_ab2_win").value;
-
       const s1 = scoreAB1(ab1First, ab1Extra);
+      const s2 = scoreAB2(ab2Win);
       const s3 = scoreAB3(ab3Base, ab3Photos);
       const s4 = scoreAB4(ab4Base);
       const s5 = scoreAB5(ab5Level);
-      const s2 = scoreAB2(ab2Win);
 
       return {total: (s1+s2+s3+s4+s5), s1,s2,s3,s4,s5};
     }
@@ -1430,42 +1527,152 @@
       document.getElementById("a_total").textContent = A.total;
       document.getElementById("b_total").textContent = B.total;
 
-      // persist score fields
       const payload = {};
       scoreFields.forEach(el=>{
-        if(!el) return;
         payload[el.id] = el.value;
       });
       localStorage.setItem("ark_score_fields", JSON.stringify(payload));
     }
 
+    // Mutual Exclusivity Helpers
+    function setupToggle(idA, idB, highVal, lowVal){
+      const elA = document.getElementById(idA);
+      const elB = document.getElementById(idB);
+      if(!elA || !elB) return;
+
+      elA.addEventListener('change', ()=>{
+        if(elA.disabled) return;
+        if(elA.value == highVal) elB.value = lowVal;
+        else elB.value = highVal;
+        renderTotals();
+      });
+      elB.addEventListener('change', ()=>{
+        if(elB.disabled) return;
+        if(elB.value == highVal) elA.value = lowVal;
+        else elA.value = highVal;
+        renderTotals();
+      });
+    }
+
+    function setupFirstExclusive(idA, idB, yesVal, noVal){
+      const elA = document.getElementById(idA);
+      const elB = document.getElementById(idB);
+      if(!elA || !elB) return;
+
+      // When A changes
+      elA.addEventListener('change', ()=>{
+        if(elA.disabled) return;
+        if(elA.value == yesVal){
+          // A is Yes -> B must be No and Locked
+          elB.value = noVal;
+          elB.disabled = true;
+        } else {
+          // A is No -> B can be anything (if task is done)
+          // We check if B task is actually done in checkScoreAccess, 
+          // but here we can just unlock it. checkScoreAccess will re-lock if needed.
+           // However, simple approach: check progress of this task
+           const taskKey = elB.getAttribute('data-task');
+           const taskDone = document.getElementById(taskKey).checked;
+           if(taskDone) elB.disabled = false;
+        }
+        renderTotals();
+      });
+
+      // When B changes
+      elB.addEventListener('change', ()=>{
+        if(elB.disabled) return;
+        if(elB.value == yesVal){
+          elA.value = noVal;
+          elA.disabled = true;
+        } else {
+           const taskKey = elA.getAttribute('data-task');
+           const taskDone = document.getElementById(taskKey).checked;
+           if(taskDone) elA.disabled = false;
+        }
+        renderTotals();
+      });
+    }
+    
+    function setupLevelExclusive(idA, idB, topVal){
+      const elA = document.getElementById(idA);
+      const elB = document.getElementById(idB);
+      
+      elA.addEventListener('change', ()=>{
+        if(elA.value == topVal && elB.value == topVal){
+           elB.selectedIndex = 1; // bump down to middle option
+        }
+        renderTotals();
+      });
+      elB.addEventListener('change', ()=>{
+        if(elB.value == topVal && elA.value == topVal){
+           elA.selectedIndex = 1; 
+        }
+        renderTotals();
+      });
+    }
+
+    // Apply rules (run on load/update)
+    function applyExclusivity(){
+      // AB1 First (Yes=10, No=0)
+      applyFirstLogic("a_ab1_first", "b_ab1_first", "10", "0");
+      // AB3 First (Yes=60, No=50)
+      applyFirstLogic("a_ab3_first", "b_ab3_first", "60", "50");
+      // AB4 First (Yes=60, No=50)
+      applyFirstLogic("a_ab4_first", "b_ab4_first", "60", "50");
+    }
+
+    function applyFirstLogic(idA, idB, yesVal, noVal){
+       const elA = document.getElementById(idA);
+       const elB = document.getElementById(idB);
+       if(!elA || !elB) return;
+       
+       // If A is Yes, force B No and Disable B
+       if(elA.value == yesVal && !elA.disabled){
+         elB.value = noVal;
+         elB.disabled = true;
+       } 
+       // If B is Yes, force A No and Disable A
+       else if(elB.value == yesVal && !elB.disabled){
+         elA.value = noVal;
+         elA.disabled = true;
+       }
+    }
+
+    // Initialize listeners
+    setupFirstExclusive("a_ab1_first", "b_ab1_first", "10", "0");
+    setupFirstExclusive("a_ab3_first", "b_ab3_first", "60", "50");
+    setupFirstExclusive("a_ab4_first", "b_ab4_first", "60", "50");
+    setupToggle("a_ab2_win", "b_ab2_win", "60", "50"); // High=60, Low=50
+    setupLevelExclusive("a_ab5_level", "b_ab5_level", "80");
+
     function loadScoreFields(){
       try{
         const raw = localStorage.getItem("ark_score_fields");
-        if(!raw) { renderTotals(); return; }
-        const data = JSON.parse(raw);
-        scoreFields.forEach(el=>{
-          if(!el) return;
-          if(typeof data[el.id] !== "undefined") el.value = data[el.id];
-        });
+        if(raw) {
+          const data = JSON.parse(raw);
+          scoreFields.forEach(el=>{
+            if(typeof data[el.id] !== "undefined") el.value = data[el.id];
+          });
+        }
       }catch(e){}
       renderTotals();
+      // Apply locks after loading values
+      checkScoreAccess();
     }
 
     scoreFields.forEach(el=>{
-      if(!el) return;
       el.addEventListener('input', renderTotals);
-      el.addEventListener('change', renderTotals);
+      // Change is handled by specific setups above, but redundancy is fine
     });
 
     document.getElementById("resetScore").addEventListener("click", ()=>{
       scoreFields.forEach(el=>{
-        if(!el) return;
         if(el.tagName === "SELECT") el.selectedIndex = 0;
         else el.value = (el.type === "number") ? 0 : "";
       });
       localStorage.removeItem("ark_score_fields");
       renderTotals();
+      checkScoreAccess(); // re-lock based on logic
     });
 
     document.getElementById("copySummary").addEventListener("click", async ()=>{
