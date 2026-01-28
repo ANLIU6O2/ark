@@ -30,16 +30,45 @@ const GameStateSchema = new mongoose.Schema({
 
 const GameState = mongoose.model('GameState', GameStateSchema);
 
+// --- Global State for Timer & Referee ---
+const GlobalStateSchema = new mongoose.Schema({
+  id: { type: String, default: 'global', unique: true },
+  startTime: { type: Number, default: null }, // Timestamp when timer started
+  duration: { type: Number, default: 75 * 60 * 1000 }, // 75 minutes in ms
+  isEnded: { type: Boolean, default: false }
+});
+const GlobalState = mongoose.model('GlobalState', GlobalStateSchema);
+
 // Initialize Default State if empty
 async function initDB() {
   const count = await GameState.countDocuments();
   if (count === 0) {
-    await GameState.create({ teamId: 'A', password: '777' }); // Default Pass for A
-    await GameState.create({ teamId: 'B', password: '888' }); // Default Pass for B
-    console.log('Initialized Database with Team A (pass: 777) and Team B (pass: 888)');
+    await GameState.create({ teamId: 'A', password: 'a71b' }); // Default Pass for A
+    await GameState.create({ teamId: 'B', password: 'a28b' }); // Default Pass for B
+  }
+  
+  const globalCount = await GlobalState.countDocuments();
+  if (globalCount === 0) {
+    await GlobalState.create({ id: 'global' });
+    console.log('Initialized Global State');
   }
 }
 initDB();
+
+// --- Timer Loop ---
+setInterval(async () => {
+  const global = await GlobalState.findOne({ id: 'global' });
+  if (global && global.startTime && !global.isEnded) {
+    const now = Date.now();
+    const elapsed = now - global.startTime;
+    if (elapsed >= global.duration) {
+      global.isEnded = true;
+      await global.save();
+      io.emit('globalStateUpdate', global);
+      console.log('Timer expired. Game Ended.');
+    }
+  }
+}, 5000); // Check every 5 seconds
 
 // --- Socket.io Logic ---
 
@@ -49,6 +78,25 @@ io.on('connection', (socket) => {
   // Handle Login
   socket.on('login', async ({ teamId, password }) => {
     try {
+      // Referee Login
+      if (teamId === 'Referee') {
+        if (password === 'yi94an713') {
+          socket.join('referee');
+          socket.emit('loginSuccess', { teamId: 'Referee', isReferee: true });
+          
+          // Send all states
+          const allStates = await GameState.find();
+          socket.emit('stateUpdate', allStates);
+          const global = await GlobalState.findOne({ id: 'global' });
+          socket.emit('globalStateUpdate', global);
+          return;
+        } else {
+          socket.emit('loginError', '裁判密碼錯誤');
+          return;
+        }
+      }
+
+      // Team Login
       const team = await GameState.findOne({ teamId, password });
       if (team) {
         socket.join(teamId); // Join team room
@@ -57,12 +105,41 @@ io.on('connection', (socket) => {
         // Send current state of EVERYTHING to the newly logged in user
         const allStates = await GameState.find();
         socket.emit('stateUpdate', allStates);
+        
+        const global = await GlobalState.findOne({ id: 'global' });
+        socket.emit('globalStateUpdate', global);
       } else {
         socket.emit('loginError', '密碼錯誤或隊伍不存在');
       }
     } catch (err) {
       console.error(err);
     }
+  });
+
+  // Referee: Start Timer
+  socket.on('adminStartTimer', async () => {
+    try {
+      const global = await GlobalState.findOne({ id: 'global' });
+      if (global) {
+        global.startTime = Date.now();
+        global.isEnded = false;
+        await global.save();
+        io.emit('globalStateUpdate', global);
+      }
+    } catch (e) { console.error(e); }
+  });
+
+  // Referee: End Game
+  socket.on('adminEndGame', async () => {
+    try {
+      const global = await GlobalState.findOne({ id: 'global' });
+      if (global) {
+        global.isEnded = true;
+        // Optionally reset start time or keep it to show "time's up"
+        await global.save();
+        io.emit('globalStateUpdate', global);
+      }
+    } catch (e) { console.error(e); }
   });
 
   // Handle Progress Update

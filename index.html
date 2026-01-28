@@ -38,6 +38,52 @@
       --max: 1100px;
     }
 
+    /* Timer Styles */
+    .timerDisplay {
+        font-family: 'Courier New', monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--gold);
+        background: rgba(0,0,0,0.6);
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--stroke);
+        margin-left: auto; /* Push to right in flex */
+        margin-right: 12px;
+        min-width: 100px;
+        text-align: center;
+        display: none; /* Hidden until logged in/started */
+    }
+    .timerDisplay.urgent {
+        color: #ff4444;
+        border-color: #ff4444;
+        animation: pulse-red 1s infinite;
+        font-size: 24px;
+        background: rgba(50,0,0,0.8);
+    }
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); transform: scale(1); }
+    }
+
+    /* Referee Panel */
+    .refPanel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--card2);
+        padding: 16px;
+        border: 1px solid var(--gold);
+        border-radius: 12px;
+        z-index: 9999;
+        display: none; /* Only for referee */
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+    .refPanel h3 { margin: 0; color: var(--gold); font-size: 16px; text-align: center; }
+
     @keyframes pulse-gold {
       0% { box-shadow: 0 0 0 0 rgba(215, 179, 93, 0.7); }
       70% { box-shadow: 0 0 0 15px rgba(215, 179, 93, 0); }
@@ -580,6 +626,11 @@
       border-color: rgba(215,179,93,.30);
       color: rgba(15,10,18,.95);
     }
+    .btn.danger {
+        background: linear-gradient(145deg, #a33, #722);
+        border-color: #f66;
+        color: #fff;
+    }
 
     /* Footer */
     footer{
@@ -597,8 +648,13 @@
         display: grid;
         gap: 8px;
         padding-bottom: 4px;
+        grid-template-areas: "brand timer" "links links";
+        grid-template-columns: 1fr auto;
       }
+      .brand { grid-area: brand; }
+      .timerDisplay { grid-area: timer; margin:0; }
       .navLinks{
+        grid-area: links;
         justify-content: flex-start;
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -655,7 +711,7 @@
 
     /* Print */
     @media print{
-      .nav, .btnRow, .heroBg{display:none !important}
+      .nav, .btnRow, .heroBg, .refPanel {display:none !important}
       body:before{display:none}
       body{background:#fff; color:#111}
       section, .heroCard, .miniCard{
@@ -676,6 +732,7 @@
       <select id="loginTeam" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
         <option value="A">A組</option>
         <option value="B">B組</option>
+        <option value="Referee">裁判</option>
       </select>
       <input type="password" id="loginPass" placeholder="輸入密碼" style="padding:12px; font-size:16px; border-radius:8px; border:1px solid #d7b35d; background:#111; color:#fff;">
       <button id="btnLogin" style="padding:12px; font-size:16px; cursor:pointer; background:#d7b35d; border:none; border-radius:8px; font-weight:bold;">登入</button>
@@ -683,6 +740,13 @@
     <p id="loginMsg" style="color:#ffcc66; font-size:14px;"></p>
   </div>
   <div class="heroBg" aria-hidden="true"></div>
+
+  <!-- Referee Controls -->
+  <div class="refPanel" id="refPanel">
+      <h3>裁判控制面板</h3>
+      <button class="btn primary" id="btnRefStart">開始倒數 (75分)</button>
+      <button class="btn danger" id="btnRefEnd">強制結束</button>
+  </div>
 
   <!-- Sticky Navigation -->
   <div class="nav">
@@ -694,6 +758,9 @@
           <div style="font-size:12px; color: rgba(242,239,231,.70); line-height:1.2;">鶯歌陶匠之城篇</div>
         </div>
       </div>
+      
+      <div class="timerDisplay" id="mainTimer">00:00</div>
+
       <div class="navLinks">
         <a class="chip" href="#intro"><span class="dot"></span>總覽</a>
         <a class="chip" href="#story"><span class="dot"></span>約櫃故事</a>
@@ -1477,8 +1544,14 @@
   <script>
     // --- Global Vars ---
     const socket = io();
-    let myTeamId = null; // 'A' or 'B'
+    let myTeamId = null; // 'A', 'B', or 'Referee'
     let isLogged = false;
+    
+    // Timer Globals
+    let globalStartTime = null;
+    let globalDuration = 75 * 60 * 1000;
+    let isGameEnded = false;
+    let timerInterval = null;
 
     // --- UI References ---
     const loginModal = document.getElementById('loginModal');
@@ -1488,6 +1561,11 @@
     const pbar = document.getElementById('pbar');
     const pnum = document.getElementById('pnum');
     const oppBar = document.getElementById('oppBar');
+    
+    const mainTimer = document.getElementById('mainTimer');
+    const refPanel = document.getElementById('refPanel');
+    const btnRefStart = document.getElementById('btnRefStart');
+    const btnRefEnd = document.getElementById('btnRefEnd');
     
     // Checkboxes
     const checks = Array.from(document.querySelectorAll('.check input[type="checkbox"]'));
@@ -1512,27 +1590,151 @@
       loginMsg.textContent = msg;
     });
 
-    socket.on('loginSuccess', ({ teamId }) => {
+    socket.on('loginSuccess', ({ teamId, isReferee }) => {
       myTeamId = teamId;
       isLogged = true;
       loginModal.style.display = 'none';
       
       // Update UI title or badge to show current team
       document.querySelector('.brand').innerHTML += `<span style="margin-left:5px; color:#d7b35d; border:1px solid #d7b35d; padding:2px; border-radius:4px; font-size:12px;">Team ${teamId}</span>`;
+      
+      // Show Timer for everyone
+      mainTimer.style.display = 'block';
+
+      // Referee UI
+      if (isReferee) {
+          refPanel.style.display = 'flex';
+          // Optional: Hide specific player inputs if needed, but locking handles interaction.
+      }
+    });
+    
+    // --- Global State & Timer Logic ---
+    socket.on('globalStateUpdate', (state) => {
+        if(!state) return;
+        globalStartTime = state.startTime;
+        globalDuration = state.duration;
+        isGameEnded = state.isEnded;
+        
+        updateTimerDisplay();
+        checkGameLock();
     });
 
+    function updateTimerDisplay() {
+        if (!globalStartTime || isGameEnded) {
+            if(isGameEnded) {
+                mainTimer.textContent = "00:00";
+                mainTimer.classList.add('urgent');
+            } else {
+                mainTimer.textContent = "75:00";
+                mainTimer.classList.remove('urgent');
+            }
+            return;
+        }
+        
+        // Start Interval if not running
+        if (!timerInterval) {
+            timerInterval = setInterval(() => {
+                if(!globalStartTime || isGameEnded) return;
+                
+                const now = Date.now();
+                const elapsed = now - globalStartTime;
+                const remaining = globalDuration - elapsed;
+                
+                if (remaining <= 0) {
+                    mainTimer.textContent = "00:00";
+                    // End handled by server state update mostly, but visual snap here
+                } else {
+                    const m = Math.floor(remaining / 60000);
+                    const s = Math.floor((remaining % 60000) / 1000);
+                    mainTimer.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                    
+                    // Urgent highlight (last 10 mins)
+                    if (remaining <= 10 * 60 * 1000) {
+                        mainTimer.classList.add('urgent');
+                    } else {
+                        mainTimer.classList.remove('urgent');
+                    }
+                }
+            }, 1000);
+        }
+    }
+    
+    function checkGameLock() {
+        const shouldLock = isGameEnded; // Or paused? Requirement says "time up or referee end -> lock all"
+        
+        const allInputs = document.querySelectorAll('input, select, button, textarea');
+        allInputs.forEach(el => {
+            // Exceptions: Login modal, Referee controls
+            if (el.closest('#loginModal')) return;
+            if (el.closest('#refPanel')) return;
+            
+            // If game ended, lock everything
+            if (shouldLock) {
+                el.disabled = true;
+            } else {
+                // If game not ended, we need to respect original locking logic (e.g. team specific fields)
+                // Re-run team lock logic
+                // But simplified: First unlock, then let updateScoreboard re-lock specific fields
+                // However, we don't want to unlock things that should be locked by game rules.
+                
+                // Safe approach: Only manipulate disabled if we are UNLOCKING or LOCKING globally.
+                // If shouldLock is false, we just let updateScoreboard handle specific field locks.
+                // But we must re-enable general buttons like checkboxes if they were globally locked.
+                
+                // For this prototype, if game is active, we rely on updateScoreboard to set correct state.
+                // We'll just un-disable checkboxes/buttons that aren't score fields.
+                if (!scoreFieldIds.includes(el.id)) {
+                    el.disabled = false;
+                }
+            }
+        });
+        
+        // Trigger re-check of score field locks (if game is active)
+        if (!shouldLock && lastAllStates) {
+            updateScoreboard(lastAllStates);
+        }
+    }
+    
+    // Referee Controls
+    btnRefStart.addEventListener('click', () => {
+        if (confirm('確定開始計時 (75分鐘)？')) {
+            socket.emit('adminStartTimer');
+        }
+    });
+    
+    btnRefEnd.addEventListener('click', () => {
+        if (confirm('確定強制結束遊戲？所有輸入將被鎖定。')) {
+            socket.emit('adminEndGame');
+        }
+    });
+
+
     // --- State Sync Logic ---
+    let lastAllStates = null;
     socket.on('stateUpdate', (allStates) => {
+      lastAllStates = allStates;
       if(!isLogged) return;
+      
+      // If Referee, we might want to see read-only view, or just ignore specific team UI updates.
+      // But let's fill it so they can see progress.
+      
+      // If I am referee, I don't have a "myTeam". 
+      // I can verify both.
+      
+      const teamA = allStates.find(s => s.teamId === 'A');
+      const teamB = allStates.find(s => s.teamId === 'B');
 
-      const myState = allStates.find(s => s.teamId === myTeamId);
-      const oppState = allStates.find(s => s.teamId !== myTeamId);
-
-      if (myState) updateMyUI(myState);
-      if (oppState) updateOppUI(oppState);
+      if (myTeamId === 'A' && teamA) updateMyUI(teamA);
+      if (myTeamId === 'A' && teamB) updateOppUI(teamB);
+      
+      if (myTeamId === 'B' && teamB) updateMyUI(teamB);
+      if (myTeamId === 'B' && teamA) updateOppUI(teamA);
       
       // Always update global scoreboard using ALL data
       updateScoreboard(allStates);
+      
+      // Re-apply global lock if needed (because updateScoreboard might have enabled things)
+      checkGameLock();
     });
 
     function updateMyUI(state) {
@@ -1545,9 +1747,6 @@
       const doneCount = state.progress.filter(b=>b).length;
       pnum.textContent = doneCount;
       pbar.style.width = (doneCount/5*100) + "%";
-      
-      // 3. Unlock/Lock checks based on sequence (Local UI logic)
-      // (This is mostly visual, server validates too)
     }
 
     function updateOppUI(state) {
@@ -1568,17 +1767,8 @@
       const fill = (team, prefix) => {
         if(!team || !team.scoreFields) return;
         Object.keys(team.scoreFields).forEach(key => {
-          // key matches the HTML id directly (e.g., "a_ab1_first")
-          // Wait, server stores "a_ab1_first"? 
-          // My server code: team.scoreFields[fieldId] = value;
-          // fieldId sent from client is "a_ab1_first".
-          // But "a_ab1_first" implies it belongs to A.
-          // Correct.
-          
           const el = document.getElementById(key);
           if(el) {
-             // Avoid overwriting if user is currently typing?
-             // For simple inputs, we just overwrite for sync.
              if(document.activeElement !== el) {
                 el.value = team.scoreFields[key];
              }
@@ -1598,19 +1788,54 @@
         const el = document.getElementById(id);
         if(!el) return;
         
+        // If global game ended, DO NOT UNLOCK.
+        if (isGameEnded) {
+            el.disabled = true;
+            return;
+        }
+
         const fieldBelongsTo = id.startsWith('a') ? 'A' : 'B';
         
-        // Rule 1: You can only edit your own team's fields
-        if(fieldBelongsTo !== myTeamId) {
-          el.disabled = true;
-        } else {
-           el.disabled = false;
+        // Helper: Extract task index (0-4) from field ID (e.g., "a_ab1_first" -> 0)
+        let taskIdx = -1;
+        const match = id.match(/_ab([1-5])_/);
+        if(match) {
+            taskIdx = parseInt(match[1]) - 1;
         }
-        
-        // Rule 2: Exclusivity Locks (Req 6)
-        // If "First to Upload" is claimed by Opponent, My field is locked to "No"
-        // We check specific pairs.
-        checkLockPair(el, teamA, teamB);
+
+        if (myTeamId !== 'Referee') {
+            // Rule 1: You can only edit your own team's fields
+            if(fieldBelongsTo !== myTeamId) {
+              el.disabled = true;
+            } else {
+               // Rule 3 (New): Must have checked the corresponding progress box
+               let progressUnlocked = true;
+               if (taskIdx >= 0) {
+                   const myState = (myTeamId === 'A') ? teamA : teamB;
+                   // Check if the progress bit at taskIdx is true
+                   if (myState && myState.progress && !myState.progress[taskIdx]) {
+                       progressUnlocked = false;
+                   }
+               }
+
+               if (!progressUnlocked) {
+                   el.disabled = true;
+                   el.title = "請先勾選上方對應的進度關卡"; // Tooltip hint
+               } else {
+                   el.disabled = false;
+                   el.title = "";
+               }
+            }
+            
+            // Rule 2: Exclusivity Locks (Req 6)
+            // Only apply if not already disabled
+            if(!el.disabled) {
+                checkLockPair(el, teamA, teamB);
+            }
+        } else {
+            // Referee View: ReadOnly
+            el.disabled = true;
+        }
       });
     }
 
@@ -1656,6 +1881,9 @@
     // 1. Checkboxes
     checks.forEach((ch, idx) => {
       ch.addEventListener('click', (e) => {
+        // Global Lock Check
+        if(isGameEnded) { e.preventDefault(); return; }
+          
         // Validation: Sequential Order
         if(ch.checked && idx > 0 && !checks[idx-1].checked) {
             e.preventDefault();
@@ -1679,21 +1907,15 @@
       if(!el) return;
       
       el.addEventListener('change', () => {
+         if(isGameEnded) return;
          const val = el.value;
-         
-         // Special handling for "First" fields (Req 6)
-         // If I am setting "Yes", I try to claim lock.
-         // Simplified: Just update field. Server/Client sync will handle the lock via state update logic above.
-         // If I set "10" here, I emit it.
-         // If opponent already had "10", the next stateUpdate will see that and overwrite my "10" back to "0" (via checkLockPair).
-         // Ideally we check BEFORE emit, but async is fine for this prototype.
-         
          socket.emit('updateScoreField', { teamId: myTeamId, fieldId: id, value: val });
       });
       
       // Also emit text inputs on blur
       if(el.type === 'text' || el.type === 'number') {
          el.addEventListener('blur', () => {
+             if(isGameEnded) return;
              socket.emit('updateScoreField', { teamId: myTeamId, fieldId: id, value: el.value });
          });
       }
