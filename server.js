@@ -44,7 +44,7 @@ async function initDB() {
   const count = await GameState.countDocuments();
   if (count === 0) {
     await GameState.create({ teamId: 'A', password: 'a71b' }); // Default Pass for A
-    await GameState.create({ teamId: 'B', password: 'a28b' }); // Default Pass for B
+    await GameState.create({ teamId: 'B', password: 'a2b8' }); // Default Pass for B
   }
   
   const globalCount = await GlobalState.countDocuments();
