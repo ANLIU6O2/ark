@@ -1946,12 +1946,12 @@
       const s3 = scoreAB3(ab3Base, ab3Photos);
       const s4 = scoreAB4(ab4Base);
       const s5 = scoreAB5(ab5Level);
-      return s1+s2+s3+s4+s5;
+      return {'s1':s1,'s2':s2,'s3':s3,'s4':s4,'s5':s5,'sT':s1+s2+s3+s4+s5};
     }
 
     function renderTotals(){
-      document.getElementById("a_total").textContent = totalTeam("a");
-      document.getElementById("b_total").textContent = totalTeam("b");
+      document.getElementById("a_total").textContent = totalTeam("a").sT;
+      document.getElementById("b_total").textContent = totalTeam("b").sT;
     }
 
     // Smooth scroll
@@ -1968,6 +1968,38 @@
     // Reset Buttons (disabled for fairness, or could be admin only. Hiding for now to prevent accidents)
     document.getElementById('resetProgress').style.display = 'none';
     document.getElementById('resetScore').style.display = 'none';
+
+    document.getElementById("copySummary").addEventListener("click", async ()=>{
+      const A = totalTeam("a");
+      const B = totalTeam("b");
+      const aNote = document.getElementById("a_note").value || "（無）";
+      const bNote = document.getElementById("b_note").value || "（無）";
+
+      const msg =
+`【約櫃之旅｜分數摘要】
+A組：${A.sT}
+- AB1 十誡：${A.s1}
+- AB2 嗎哪：${A.s2}
+- AB3 發芽杖：${A.s3}
+- AB4 約櫃：${A.s4}
+- AB5 同在：${A.s5}
+備註：${aNote}
+
+B組：${B.sT}
+- AB1 十誡：${B.s1}
+- AB2 嗎哪：${B.s2}
+- AB3 發芽杖：${B.s3}
+- AB4 約櫃：${B.s4}
+- AB5 同在：${B.s5}
+備註：${bNote}`;
+
+      try{
+        await navigator.clipboard.writeText(msg);
+        alert("已複製！可以直接貼到群組。");
+      }catch(e){
+        prompt("你的瀏覽器不允許直接複製，請手動複製下方內容：", msg);
+      }
+    });
 
   </script>
 </body>
